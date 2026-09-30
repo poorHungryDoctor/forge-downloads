@@ -1,10 +1,12 @@
 # Forge downloads
 
-Public, source-free downloads of the Forge command-line tool (Windows x64 and Linux x64) and the
-Forge Process Metrics VS Code extension. No access to the private source repository is needed.
+Packaged downloads of the Forge command-line tool (Windows x64 and Linux x64),
+Forge Process Metrics, and Forge Branch Review for VS Code. No access to the
+private source repository is needed.
 
 Download a specific version from [Releases](https://github.com/jjolliff/forge-downloads/releases)
 when you need a reproducible install. The examples below use the latest release.
+Download the matching **sha256.txt** and verify each file before installing it.
 
 ## Windows: Forge CLI
 
@@ -20,8 +22,8 @@ Expand-Archive forgeWindowsX64.zip -DestinationPath "$HOME\tools\forge" -Force
 & "$HOME\tools\forge\forge.exe" --help
 ```
 
-The ZIP contains `forge.exe`; no installer or clone is required. Add `$HOME\tools\forge` to your
-`PATH` only if you want to invoke `forge` without its full path.
+The ZIP contains **forge.exe**; no installer or clone is required. Add
+`$HOME\tools\forge` to your `PATH` to invoke `forge` without its full path.
 
 ## Linux: Forge CLI
 
@@ -35,22 +37,62 @@ tar -xzf forgeLinuxX64.tar.gz -C "$HOME/.local/bin"
 "$HOME/.local/bin/forge" --help
 ```
 
-The tarball contains a statically linked `forge` executable. Add `$HOME/.local/bin` to `PATH` if
-needed. Some commands, such as `forge format`, also need external tools (for example clang-format
-23.1.1); `forge --help` lists the available commands.
+The tarball contains a statically linked **forge** executable. Add
+`$HOME/.local/bin` to `PATH` if needed. Some commands, such as `forge format`, also
+need external tools (for example clang-format 23.1.1); `forge --help` lists the
+available commands.
+
+## Install a VS Code extension
+
+Download the VSIX for the extension you need and the matching
+[sha256.txt](https://github.com/jjolliff/forge-downloads/releases/latest/download/sha256.txt).
+In PowerShell, use `Get-FileHash .\forge-branch-review.vsix -Algorithm SHA256`
+(or the metrics filename) and compare it with that file's entry in **sha256.txt**.
+
+In VS Code, run **Extensions: Install from VSIX...**, select the downloaded file,
+and reload the window. No source checkout, Node.js, npm, or build step is needed.
+To upgrade, install the newer VSIX and reload again.
+
+## VS Code: Branch Review
+
+Download [forge-branch-review.vsix](https://github.com/jjolliff/forge-downloads/releases/latest/download/forge-branch-review.vsix).
+Requires VS Code 1.90 or newer, Git, the built-in Git extension, and a trusted
+repository folder.
+
+Run **Forge Branch Review: Compare Current Branch...**, choose a repository if
+needed, and select a local branch, cached remote branch (such as `origin/main`),
+tag, or commit as the base. **Source Control > Branch Review** lists added,
+modified, deleted, and renamed files. Select a text file to open its read-only
+native diff. Use the branch icon to change the base and the refresh icon after
+commits, external branch switches, or an explicit fetch.
+
+The comparison shows committed branch changes from the common ancestor to
+current `HEAD`, equivalent to `git diff base...HEAD`. Staged edits, unstaged
+edits, and untracked files are excluded. The extension never fetches or checks
+out a branch; remote refs use the local cache. Binary files are listed with a
+notice instead of a text diff. Missing refs and unavailable history show an
+explanation. Partial clones require Git with `--no-lazy-fetch` support; older
+Git can review full local clones.
+
+If VS Code is configured for inline diffs, opening a file offers to enable
+side-by-side diffs in user settings. The installed extension's README contains
+the complete behavior and limitations.
 
 ## VS Code: Process Metrics
 
-Download [forge-metrics.vsix](https://github.com/jjolliff/forge-downloads/releases/latest/download/forge-metrics.vsix)
-and install it in VS Code with **Extensions: Install from VSIX...**, then reload the window. Or run:
+Download [forge-metrics.vsix](https://github.com/jjolliff/forge-downloads/releases/latest/download/forge-metrics.vsix).
+Shows live CPU and resident memory for a process on the workspace machine.
+Supports Windows and Linux.
 
-```powershell
-code --install-extension .\forge-metrics.vsix
-```
+For a local debug launch, press F5. The history view opens immediately and starts
+sampling when the debugger reports the process ID. If it is waiting for a PID,
+use **Select process...** in the view. For a process started in a terminal or
+elsewhere, run **Forge Metrics: Monitor Process...** and select it by name or PID.
+Use **Forge Metrics: Enter Process ID...** when the process is not listed.
 
-The extension shows CPU and resident memory for a *locally launched debuggee* while a VS Code
-debug session is running. Use **Forge Metrics: Show Process Metrics** to open its history panel.
-It does not measure the whole machine or watch programs started outside the debugger. If your
-debugger does not report a local process ID, use **Forge Metrics: Select Debuggee PID** during the
-session. You can compare the VSIX's SHA-256 with its entry in
-[sha256.txt](https://github.com/jjolliff/forge-downloads/releases/latest/download/sha256.txt).
+The status bar shows live CPU and RAM; click it for up to 90 seconds of history.
+The final graph stays visible after exit. CPU 100% means one fully busy logical
+core, so multithreaded programs can exceed 100%. RAM is resident memory for the
+selected process, not total allocations, GPU memory, or its child processes.
+The installed extension's README also describes automatic monitoring for
+opted-in direct process tasks.
