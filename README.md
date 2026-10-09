@@ -96,3 +96,49 @@ core, so multithreaded programs can exceed 100%. RAM is resident memory for the
 selected process, not total allocations, GPU memory, or its child processes.
 The installed extension's README also describes automatic monitoring for
 opted-in direct process tasks.
+
+### Windows memory capture
+
+The same **forge.exe** also provides `forge memory`.
+Use the Windows binary and Metrics VSIX from the same release. No second native
+tool or Forge PDB is needed for monitor/window capture. Configure absolute local
+paths and literal arguments in VS Code settings:
+
+```json
+{
+    "forgeMetrics.forgePath": "C:\\Tools\\forge.exe",
+    "forgeMetrics.memoryProfileTarget": {
+        "executable": "C:\\Work\\bin\\program.exe",
+        "args": ["input with spaces.dat", "--quality", "20"],
+        "cwd": "C:\\Work",
+        "intervalMs": 50,
+        "timeoutMs": 60000,
+        "durationMs": 100
+    }
+}
+```
+
+Run **Forge Metrics: Capture Memory Monitor...** for private commit and working
+set without a debugger, ETW or symbols. Run **Forge Metrics: Capture Startup
+Allocation Window...** for an intrusive startup-prefix heap-stack capture. That
+mode requires the target's matching adjacent local PDB, can substantially slow
+the target, and keeps a debugger attached until exit. It is not CPU profiling,
+whole-run allocation accounting, or a leak detector. Windows ETW permissions
+depend on the machine; no automatic elevation or symbol download occurs.
+
+Capture requires a trusted local Windows workspace, not SSH/WSL. Choose a report
+folder and confirm the target. Cancellation requests cooperative cleanup of the
+launched PID, not its descendants, and waits for Forge to exit. Reports are
+preserved; existing files are not overwritten. Normal F5 live metrics are unchanged.
+
+### Saved memory profiles
+
+Run **Forge Metrics: Open Memory Profile...** to view a saved Forge JSON report.
+The viewer shows private-commit/working-set timelines and, where captured,
+allocation traffic, request counts and observed live-byte flame graphs. Zoom,
+search and sortable hotspots operate on aggregate allocation groups, not CPU
+durations or a selected time range. Source locations are text only.
+
+Reports remain local. Partial capture, lost events and missing symbols are shown
+explicitly; oversized or malformed reports are rejected. Historical memoryProbe
+reports remain supported. The installed extension's README has the full limits.
