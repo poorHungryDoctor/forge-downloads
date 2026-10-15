@@ -142,3 +142,42 @@ durations or a selected time range. Source locations are text only.
 Reports remain local. Partial capture, lost events and missing symbols are shown
 explicitly; oversized or malformed reports are rejected. Historical memoryProbe
 reports remain supported. The installed extension's README has the full limits.
+## One-command installation (Windows Git Bash & Linux x64)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jjolliff/forge-downloads/main/install.sh -o /tmp/forge-install.sh && bash /tmp/forge-install.sh
+```
+
+Installs the `forge` CLI, pinned `clang-format` 23.1.1, both VS Code extensions
+when Code is found, user `PATH` entries, the `forge-tools` skill for Claude Code
+and Copilot, and a Claude session-start updater. Open a new terminal and restart
+VS Code afterward.
+
+## AI Workflow & Cost Retrospective (`forge retro`)
+
+`forge retro` correlates git history with local AI session transcripts across
+**Claude Code** (`~/.claude/projects`), **Copilot CLI / VS Code Agent Host**
+(`~/.copilot/session-state`), and **VS Code Native Chat** (`workspaceStorage`).
+
+```bash
+forge retro --stdout                    # Markdown report (last 7 days, all AI hosts)
+forge retro --since 2026-10-01 --stdout # Custom date window
+forge retro --source copilot --stdout   # Filter by host: all | claude | copilot | vscode
+forge retro --json                      # Machine-readable JSON summary
+forge retro --watch                     # Keep ~/.forge/retros/live.json updated live
+```
+
+Reports input/cached/output token counts, Copilot premium requests and credits,
+per-skill `SKILL.md` prompt size and active-span execution cost, and subagent
+runs and token share.
+
+## Sampled CPU Profiling (Windows)
+
+In VS Code (`forge-metrics`), run **Forge Metrics: Capture Sampled CPU Window...**
+to launch a configured target under Windows Performance Recorder (`wpr` / `xperf`)
+or **Forge Metrics: Open CPU Profile...** to inspect a saved `.etl.json` report.
+From an elevated Windows terminal:
+
+```powershell
+forge cpu --window C:\Temp\cpu.etl --duration-ms 2000 -- C:\Work\bin\program.exe
+```
